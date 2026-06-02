@@ -1,0 +1,51 @@
+# ── Maven ──────────────────────────────────────────────
+target/
+*.jar
+*.war
+*.ear
+!**/test/**/*.jar
+
+# ── IntelliJ IDEA ──────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ── VS Code ────────────────────────────────────────────
+.vscode/
+
+# ── Eclipse ────────────────────────────────────────────
+.eclipse/
+.classpath
+.project
+.settings/
+bin/
+
+# ── Spring Boot ────────────────────────────────────────
+**/application-local.properties
+**/application-local.yml
+
+# ── Environment / Secrets ──────────────────────────────
+.env
+.env.*
+*.secret
+
+# ── Docker ─────────────────────────────────────────────
+# keep Dockerfiles and docker-compose.yml tracked
+# ignore local override files
+docker-compose.override.yml
+
+# ── Kubernetes ─────────────────────────────────────────
+# keep all manifests tracked
+# ignore generated/local kubeconfig
+kubeconfig
+*.kubeconfig
+
+# ── OS ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Logs ───────────────────────────────────────────────
+*.log
+logs/
