@@ -1,4 +1,3 @@
-/**
 package com.foodordering.menu_microservice.security;
 
 import lombok.RequiredArgsConstructor;
@@ -37,4 +36,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-}**/
+}
