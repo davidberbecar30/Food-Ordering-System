@@ -9,9 +9,14 @@ services:
       POSTGRES_USER: user_svc
       POSTGRES_PASSWORD: ${USER_DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - user-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_svc -d user_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   menu-db:
     image: postgres:16
@@ -45,10 +50,14 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/user_db
       SPRING_DATASOURCE_USERNAME: user_svc
       SPRING_DATASOURCE_PASSWORD: ${USER_DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
+      APP_JWT_SECRET: ${JWT_SECRET}
+      APP_ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      APP_ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@foodordering.local}
+      APP_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
     restart: on-failure
     depends_on:
-      - user-db
+      user-db:
+        condition: service_healthy
 
   menu-microservice:
     build: ./menu-microservice
