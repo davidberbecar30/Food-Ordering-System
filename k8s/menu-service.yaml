@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: menu-service
+  namespace: food-ordering
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: menu-service
+  template:
+    metadata:
+      labels:
+        app: menu-service
+    spec:
+      containers:
+        - name: menu-service
+          image: menu-microservice:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://menu-db:5432/menu_db
+            - name: SPRING_DATASOURCE_USERNAME
+              value: menu_svc
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: food-ordering-secrets
+                  key: menu-db-password
+            - name: USER_SERVICE_URL
+              value: http://user-microservice:8081
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: food-ordering-secrets
+                  key: jwt-secret
+          readinessProbe:
+            httpGet:
+              path: /api/menu/restaurants
+              port: 8082
+            initialDelaySeconds: 20
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: menu-microservice
+  namespace: food-ordering
+spec:
+  selector:
+    app: menu-service
+  ports:
+    - port: 8082
+      targetPort: 8082

@@ -37,11 +37,9 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItemRequest itemRequest : request.items()) {
 
-            MenuItemDto menuItem =
-                    menuClient.getMenuItem(itemRequest.menuItemId());
+            MenuItemDto menuItem = menuClient.getMenuItem(itemRequest.menuItemId());
 
             OrderItem item = new OrderItem();
-
             item.setMenuItemId(menuItem.id());
             item.setItemName(menuItem.name());
             item.setUnitPrice(menuItem.price());
@@ -50,12 +48,7 @@ public class OrderServiceImpl implements OrderService {
             order.addItem(item);
 
             totalPrice = totalPrice.add(
-                    menuItem.price()
-                            .multiply(
-                                    BigDecimal.valueOf(
-                                            itemRequest.quantity()
-                                    )
-                            )
+                    menuItem.price().multiply(BigDecimal.valueOf(itemRequest.quantity()))
             );
         }
 
@@ -68,13 +61,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse getOrder(Long id) {
-
         return map(findOrder(id));
     }
 
     @Override
     public List<OrderResponse> getOrdersByUser(Long userId) {
-
         return orderRepository.findByUserId(userId)
                 .stream()
                 .map(this::map)
@@ -87,13 +78,10 @@ public class OrderServiceImpl implements OrderService {
         Order order = findOrder(id);
 
         if (order.getStatus() != OrderStatus.CREATED) {
-            throw new InvalidOrderStateException(
-                    "Only CREATED orders can be confirmed"
-            );
+            throw new InvalidOrderStateException("Only CREATED orders can be confirmed");
         }
 
         order.setStatus(OrderStatus.CONFIRMED);
-
         return map(order);
     }
 
@@ -103,13 +91,10 @@ public class OrderServiceImpl implements OrderService {
         Order order = findOrder(id);
 
         if (order.getStatus() != OrderStatus.CONFIRMED) {
-            throw new InvalidOrderStateException(
-                    "Only CONFIRMED orders can be completed"
-            );
+            throw new InvalidOrderStateException("Only CONFIRMED orders can be completed");
         }
 
         order.setStatus(OrderStatus.COMPLETED);
-
         return map(order);
     }
 
@@ -119,27 +104,19 @@ public class OrderServiceImpl implements OrderService {
         Order order = findOrder(id);
 
         if (order.getStatus() == OrderStatus.COMPLETED) {
-            throw new InvalidOrderStateException(
-                    "Completed orders cannot be cancelled"
-            );
+            throw new InvalidOrderStateException("Completed orders cannot be cancelled");
         }
 
         order.setStatus(OrderStatus.CANCELLED);
-
         return map(order);
     }
 
     private Order findOrder(Long id) {
-
         return orderRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Order not found: " + id
-                        ));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + id));
     }
 
     private OrderResponse map(Order order) {
-
         return new OrderResponse(
                 order.getId(),
                 order.getUserId(),
