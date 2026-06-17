@@ -18,10 +18,9 @@ public class MenuClient {
                 .build();
     }
 
-    public MenuItemDto getMenuItem(Long id) {
-
+    public MenuItemDto getMenuItem(String id) {
         return restClient.get()
-                .uri("/menu-items/{id}", id)
+                .uri("/api/menu/items/{id}", id)
                 .retrieve()
                 .body(MenuItemDto.class);
     }
