@@ -1,6 +1,7 @@
 package com.foodordering.order_microservice.service;
 
 import com.foodordering.order_microservice.client.MenuClient;
+import com.foodordering.order_microservice.client.UserClient;
 import com.foodordering.order_microservice.dto.*;
 import com.foodordering.order_microservice.entity.*;
 import com.foodordering.order_microservice.exception.*;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -17,20 +19,27 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final MenuClient menuClient;
+    private final UserClient userClient;
 
     public OrderServiceImpl(
             OrderRepository orderRepository,
-            MenuClient menuClient
+            MenuClient menuClient,
+            UserClient userClient
     ) {
         this.orderRepository = orderRepository;
         this.menuClient = menuClient;
+        this.userClient = userClient;
     }
 
     @Override
-    public OrderResponse createOrder(CreateOrderRequest request) {
+    public OrderResponse createOrder(UUID userId, CreateOrderRequest request) {
+
+        if (!userClient.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found: " + userId);
+        }
 
         Order order = new Order();
-        order.setUserId(request.userId());
+        order.setUserId(userId);
         order.setStatus(OrderStatus.CREATED);
 
         BigDecimal totalPrice = BigDecimal.ZERO;
@@ -65,7 +74,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getOrdersByUser(Long userId) {
+    public List<OrderResponse> getOrdersByUser(UUID userId) {
         return orderRepository.findByUserId(userId)
                 .stream()
                 .map(this::map)
