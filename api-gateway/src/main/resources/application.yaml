@@ -23,6 +23,8 @@ spring:
             uri: ${ORDER_SERVICE_URL:http://localhost:8083}
             predicates:
               - Path=/orders/**
+            filters:
+              - RewritePath=/orders/(?<segment>.*),/api/orders/$\{segment}
 
 server:
   port: 8080

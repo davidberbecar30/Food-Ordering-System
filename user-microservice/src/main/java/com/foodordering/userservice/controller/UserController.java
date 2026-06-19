@@ -100,4 +100,17 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "Internal: validate a JWT without a known user id")
+    @GetMapping("/validate-token")
+    public ResponseEntity<TokenValidationResponse> validateTokenOnly(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        String token = null;
+        if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+            token = authHeader.substring(BEARER_PREFIX.length());
+        }
+
+        return ResponseEntity.ok(userService.validateToken(token));
+    }
 }

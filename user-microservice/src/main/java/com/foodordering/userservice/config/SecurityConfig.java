@@ -26,6 +26,7 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/users/register",
             "/api/users/login",
+            "/api/users/validate-token",
             "/actuator/health",
             "/actuator/info",
             // Swagger / OpenAPI
