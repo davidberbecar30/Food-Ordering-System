@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: menu-db-pvc
+  namespace: food-ordering
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: menu-db
+  namespace: food-ordering
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: menu-db
+  template:
+    metadata:
+      labels:
+        app: menu-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: menu_db
+            - name: POSTGRES_USER
+              value: menu_svc
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: food-ordering-secrets
+                  key: menu-db-password
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "menu_svc", "-d", "menu_db"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: menu-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: menu-db
+  namespace: food-ordering
+spec:
+  selector:
+    app: menu-db
+  ports:
+    - port: 5432
+      targetPort: 5432
